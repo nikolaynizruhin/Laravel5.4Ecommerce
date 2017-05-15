@@ -31,4 +31,21 @@ class CartTest extends TestCase
         $response->assertRedirect('/products');
         $response->assertSessionHas('status', 'Product successfully added to cart!');
     }
+
+    /**
+     * Only auth user can add product to cart.
+     *
+     * @return void
+     */
+    public function testOnlyAuthUserCanAddProductToCart()
+    {
+        $product = factory(Product::class)->create();
+
+        $response = $this->post('/cart', [
+            'quantity' => 1,
+            'product_id' => $product->id
+        ]);
+
+        $response->assertRedirect('/login');
+    }
 }
