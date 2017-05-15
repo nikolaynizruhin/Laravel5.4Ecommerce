@@ -6,6 +6,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use App\Product;
 
 class ProductTest extends TestCase
 {
@@ -18,7 +19,7 @@ class ProductTest extends TestCase
      */
     public function testUserCanSeeProducts()
     {
-        $product = factory(\App\Product::class)->create();
+        $product = factory(Product::class)->create();
 
         $response = $this->get('/products');
 

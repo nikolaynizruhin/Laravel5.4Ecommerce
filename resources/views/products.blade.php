@@ -2,6 +2,13 @@
 
 @section('content')
 <div class="container">
+
+    @if (session('status'))
+        <div class="alert alert-success">
+            {{ session('status') }}
+        </div>
+    @endif
+
     @foreach ($products->chunk(3) as $productChunk)
         <div class="row">
             @foreach ($productChunk as $product)
@@ -17,9 +24,10 @@
                             </h4>
                             <p>{{ $product->description }}</p>
                             <p>
-                                <form class="form-inline">
+                                <form class="form-inline" method="POST" action="/cart">
+                                    {{ csrf_field() }}
                                     <div class="form-group">
-                                        <select class="form-control">
+                                        <select class="form-control" name="quantity">
                                             <option>1</option>
                                             <option>2</option>
                                             <option>3</option>
@@ -27,6 +35,7 @@
                                             <option>5</option>
                                         </select>
                                     </div>
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
                                     <button type="submit" class="btn btn-default">Add to cart</button>
                                 </form>
                             </p>
