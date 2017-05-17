@@ -14,18 +14,36 @@ class CartTest extends TestCase
     use DatabaseTransactions;
 
     /**
+     * User, Product 
+     *
+     * @var User $user
+     * @var Product $product
+     */
+    protected $user, $product;
+
+    /**
+     * Set up
+     *
+     * @return void
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->user = factory(User::class)->create();
+        $this->product = factory(Product::class)->create();
+    }
+
+    /**
      * User can add product to cart.
      *
      * @return void
      */
     public function testUserCanAddProductToCart()
     {
-        $user = factory(User::class)->create();
-        $product = factory(Product::class)->create();
-
-        $response = $this->actingAs($user)->post('/cart', [
+        $response = $this->actingAs($this->user)->post('/cart', [
             'quantity' => 1,
-            'product_id' => $product->id
+            'product_id' => $this->product->id
         ]);
 
         $response->assertRedirect('/products');
@@ -39,11 +57,9 @@ class CartTest extends TestCase
      */
     public function testOnlyAuthUserCanAddProductToCart()
     {
-        $product = factory(Product::class)->create();
-
         $response = $this->post('/cart', [
             'quantity' => 1,
-            'product_id' => $product->id
+            'product_id' => $this->product->id
         ]);
 
         $response->assertRedirect('/login');
@@ -56,16 +72,13 @@ class CartTest extends TestCase
      */
     public function testUserCanSeeProductsInTheCart()
     {
-        $user = factory(User::class)->create();
-        $product = factory(Product::class)->create();
-
-        $this->actingAs($user)->post('/cart', [
+        $this->actingAs($this->user)->post('/cart', [
             'quantity' => 1,
-            'product_id' => $product->id
+            'product_id' => $this->product->id
         ]);
 
-        $response = $this->actingAs($user)->get('/cart');
+        $response = $this->actingAs($this->user)->get('/cart');
 
-        $response->assertSee($product->name);
+        $response->assertSee($this->product->name);
     }
 }
