@@ -48,4 +48,24 @@ class CartTest extends TestCase
 
         $response->assertRedirect('/login');
     }
+
+    /**
+     * User can see products in the cart.
+     *
+     * @return void
+     */
+    public function testUserCanSeeProductsInTheCart()
+    {
+        $user = factory(User::class)->create();
+        $product = factory(Product::class)->create();
+
+        $this->actingAs($user)->post('/cart', [
+            'quantity' => 1,
+            'product_id' => $product->id
+        ]);
+
+        $response = $this->actingAs($user)->get('/cart');
+
+        $response->assertSee($product->name);
+    }
 }
