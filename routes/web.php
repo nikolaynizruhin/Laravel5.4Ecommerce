@@ -24,3 +24,5 @@ Route::resource('products', 'ProductController', ['only' => [
 ]]);
 
 Route::resource('cart', 'CartController');
+
+Route::post('/purchases', 'PurchaseController@store');
