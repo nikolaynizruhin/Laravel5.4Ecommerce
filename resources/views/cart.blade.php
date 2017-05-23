@@ -20,18 +20,18 @@
 
                         <tbody>
 
-                            <?php foreach(\Gloudemans\Shoppingcart\Facades\Cart::content() as $row) :?>
+                            @foreach(\Gloudemans\Shoppingcart\Facades\Cart::content() as $row)
 
                                 <tr>
                                     <td>
-                                        <p><?php echo $row->name; ?></p>
+                                        <p>{{ $row->name }}</p>
                                     </td>
-                                    <td><?php echo $row->qty; ?></td>
-                                    <td>$<?php echo $row->price; ?></td>
-                                    <td>$<?php echo $row->total; ?></td>
+                                    <td>{{ $row->qty }}</td>
+                                    <td>${{ $row->price }}</td>
+                                    <td>${{ $row->total }}</td>
                                 </tr>
 
-                            <?php endforeach;?>
+                            @endforeach
 
                         </tbody>
                         
@@ -39,20 +39,35 @@
                             <tr>
                                 <td colspan="2">&nbsp;</td>
                                 <td>Subtotal</td>
-                                <td><?php echo \Gloudemans\Shoppingcart\Facades\Cart::subtotal(); ?></td>
+                                <td>{{ \Gloudemans\Shoppingcart\Facades\Cart::subtotal() }}</td>
                             </tr>
                             <tr>
                                 <td colspan="2">&nbsp;</td>
                                 <td>Tax</td>
-                                <td><?php echo \Gloudemans\Shoppingcart\Facades\Cart::tax(); ?></td>
+                                <td>{{ \Gloudemans\Shoppingcart\Facades\Cart::tax() }}</td>
                             </tr>
                             <tr>
                                 <td colspan="2">&nbsp;</td>
                                 <td><strong>Total</strong></td>
-                                <td><strong><?php echo \Gloudemans\Shoppingcart\Facades\Cart::total(); ?></strong></td>
+                                <td><strong>{{ \Gloudemans\Shoppingcart\Facades\Cart::total() }}</strong></td>
                             </tr>
                         </tfoot>
                     </table>
+                    <form action="/purchases" method="POST">
+                        {{ csrf_field() }}
+
+                        <script
+                            src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                            data-key="{{ config('services.stripe.key') }}"
+                            data-amount="{{ str_replace('.', '', \Gloudemans\Shoppingcart\Facades\Cart::total()) }}"
+                            data-email="{{ Auth::user()->email }}"
+                            data-name="Products"
+                            data-description="Description"
+                            data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+                            data-locale="auto"
+                            data-zip-code="true">
+                        </script>
+                    </form>
                 </div>
             </div>
         </div>
