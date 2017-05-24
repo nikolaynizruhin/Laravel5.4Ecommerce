@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Stripe\{Stripe, Charge, Customer};
 use Illuminate\Support\Facades\Auth;
 use Gloudemans\Shoppingcart\Facades\Cart;
+use App\Billing\Stripe;
 
 class PurchaseController extends Controller
 {
@@ -25,23 +25,19 @@ class PurchaseController extends Controller
      * @param  Request  $request
      * @return Response
      */
-    public function store(Request $request)
+    public function store(Stripe $stripe)
     {
-        // Set Stripe api key
-        Stripe::setApiKey(config('services.stripe.secret'));
+        // Create customer
+        $customer = $stripe->createCustomer(
+            Auth::user()->email, 
+            request('stripeToken')
+        );
 
-        // Charge the customer
-        $customer = Customer::create([
-            'email' => Auth::user()->email,
-            'source' => request('stripeToken')
-        ]);
-
-        // Charge the purchase
-        Charge::create([
-            'customer' => $customer->id,
-            'amount' => str_replace('.', '', \Gloudemans\Shoppingcart\Facades\Cart::total()),
-            'currency' => 'usd'
-        ]);
+        // Create charge
+        $stripe->createCharge(
+            $customer->id,
+            str_replace('.', '', Cart::total())
+        );
 
         // Empty cart
         Cart::destroy();

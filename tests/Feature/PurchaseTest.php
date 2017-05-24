@@ -34,16 +34,10 @@ class PurchaseTest extends TestCase
         $user = factory(User::class)->create();
         $product = factory(Product::class)->create();
 
-        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
-
-        $stripeToken = \Stripe\Token::create([
-            "card" => [
-                "number" => "4242424242424242",
-                "exp_month" => 1,
-                "exp_year" => 2018,
-                "cvc" => "123"
-            ]
-        ]);
+        $stripe = \Mockery::spy('App\Billing\Stripe');
+        $stripe->shouldReceive('createCustomer')->once()->andReturn($user);
+        $stripe->shouldReceive('createCharge')->once();
+        app()->instance('App\Billing\Stripe', $stripe);
 
         $this->actingAs($user)->post('/cart', [
             'quantity' => 1,
@@ -51,7 +45,7 @@ class PurchaseTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->post('/purchases', [
-            'stripeToken' => $stripeToken,
+            'stripeToken' => 'token',
             'stripeTokenType' => 'card',
             'stripeEmail' => $user->email
         ]);
