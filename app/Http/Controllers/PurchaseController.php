@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Gloudemans\Shoppingcart\Facades\Cart;
-use Facades\App\Billing\Stripe\{Customer, Charge};
+use App\Billing\Payments;
 
 class PurchaseController extends Controller
 {
@@ -25,16 +25,16 @@ class PurchaseController extends Controller
      * @param  Request  $request
      * @return Response
      */
-    public function store()
+    public function store(Payments $payments)
     {
         // Create customer
-        $customer = Customer::create(
+        $customer = $payments->createCustomer(
             Auth::user()->email, 
             request('stripeToken')
         );
 
         // Create charge
-        Charge::create(
+        $payments->createCharge(
             $customer->id,
             str_replace('.', '', Cart::total())
         );

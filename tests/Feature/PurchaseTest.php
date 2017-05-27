@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\User;
 use App\Product;
-use Facades\App\Billing\Stripe\{Charge, Customer};
+use App\Billing\Payments;
 
 class PurchaseTest extends TestCase
 {
@@ -35,8 +35,10 @@ class PurchaseTest extends TestCase
         $user = factory(User::class)->create();
         $product = factory(Product::class)->create();
 
-        Customer::shouldReceive('create')->once()->andReturn($user);
-        Charge::shouldReceive('create')->once();
+        $payments = \Mockery::mock('App\Billing\Payments');
+        $payments->shouldReceive('createCustomer')->once()->andReturn($user);
+        $payments->shouldReceive('createCharge')->once();
+        app()->instance('App\Billing\Payments', $payments);
 
         $this->actingAs($user)->post('/cart', [
             'quantity' => 1,
